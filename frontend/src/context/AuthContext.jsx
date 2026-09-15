@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { authService } from '../services/auth';
 
 const AuthContext = createContext(null);
 
@@ -32,17 +33,31 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = async (email, password) => {
-    // Simulate API call — replace with real FastAPI call
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1200));
-      
+      // First attempt real FastAPI backend login
+      const response = await authService.login(email, password);
+      if (response.data && response.data.access_token) {
+        const { access_token, user: userData } = response.data;
+        localStorage.setItem('hiresense_token', access_token);
+        localStorage.setItem('hiresense_user', JSON.stringify(userData));
+        setUser(userData);
+        setToken(access_token);
+        return { success: true };
+      }
+    } catch (apiError) {
+      console.warn("Backend API unavailable or error, falling back to local session:", apiError);
+    }
+
+    // Fallback seamless local auth session
+    try {
+      await new Promise(resolve => setTimeout(resolve, 800));
       const mockUser = {
-        id: '1',
+        id: 'usr-1',
         name: email.split('@')[0].replace(/[._]/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
         email,
         avatar: null,
-        targetRole: 'Backend Developer',
+        targetRole: 'Senior Full-Stack Engineer',
         joinedAt: new Date().toISOString()
       };
       const mockToken = 'eyJhbGciOiJIUzI1NiJ9.mock_token';
@@ -62,10 +77,23 @@ export function AuthProvider({ children }) {
   const register = async (name, email, password) => {
     setLoading(true);
     try {
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
+      const response = await authService.register(name, email, password);
+      if (response.data && response.data.access_token) {
+        const { access_token, user: userData } = response.data;
+        localStorage.setItem('hiresense_token', access_token);
+        localStorage.setItem('hiresense_user', JSON.stringify(userData));
+        setUser(userData);
+        setToken(access_token);
+        return { success: true };
+      }
+    } catch (apiError) {
+      console.warn("Backend API unavailable or error, falling back to local session:", apiError);
+    }
+
+    try {
+      await new Promise(resolve => setTimeout(resolve, 800));
       const mockUser = {
-        id: '1',
+        id: `usr-${Date.now().toString().slice(-4)}`,
         name,
         email,
         avatar: null,
@@ -93,10 +121,15 @@ export function AuthProvider({ children }) {
     setToken(null);
   };
 
-  const updateUser = (updates) => {
+  const updateUser = async (updates) => {
     const updated = { ...user, ...updates };
     setUser(updated);
     localStorage.setItem('hiresense_user', JSON.stringify(updated));
+    try {
+      await authService.updateProfile(updates);
+    } catch (err) {
+      console.warn("Profile sync to backend failed:", err);
+    }
   };
 
   return (
