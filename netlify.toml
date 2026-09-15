@@ -1,0 +1,15 @@
+# Netlify configuration for HireSense Monorepo
+
+[build]
+  base = "frontend"
+  publish = "dist"
+  command = "npm run build"
+
+[build.environment]
+  NODE_VERSION = "20"
+
+# Redirect all routing requests to index.html for React Router SPA
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
