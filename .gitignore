@@ -1,0 +1,58 @@
+# Node dependencies & build
+node_modules/
+frontend/node_modules/
+dist/
+frontend/dist/
+build/
+frontend/build/
+.npm
+*.log
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+backend/.env
+
+# Python & virtual environments
+__pycache__/
+backend/__pycache__/
+*/__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+.pytest_cache/
+
+# Chroma & Vector Databases
+chroma_data/
+chroma_db/
+backend/chroma_data/
+backend/chroma_db/
+
+# IDE & OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
